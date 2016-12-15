@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="catherine.com.myview.MainActivity">
+
+    <catherine.com.myview.view.PagerSlidingTabStrip
+        android:id="@+id/pagertabs"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        app:pstsDividerColor="@android:color/transparent"
+        app:pstsDividerPadding="0dp"
+        app:pstsIndicatorColor="@color/action_bar_background"
+        app:pstsIndicatorHeight="2dp"
+        app:pstsShouldExpand="true"
+        app:pstsTabSwitch="true"
+        app:pstsUnderlineHeight="2dp"/>
+
+    <catherine.com.myview.view.CustomViewPager
+        android:id="@+id/pager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@+id/pagertabs"/>
+</RelativeLayout>
