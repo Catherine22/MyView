@@ -37,12 +37,21 @@ public class Fragment0 extends Fragment {
     private List<MyData> myDataList;
     private Handler timerHandler;
 
+    /**
+     * Load how many items at a time
+     */
+    private final int LOADING_ITEMS = 10;
+
+    //Calculate totalDataLength referring to APIs response.
+    private int totalDataLength = IMAGES.length;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment0, container, false);
         timerHandler = new Handler();
-        fillInData();
+        myDataList = new ArrayList<>();
+        fillInData(LOADING_ITEMS);
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl);
         swipeRefreshLayout.setColorSchemeResources(R.color.red, R.color.yellow, R.color.green, R.color.blue);
@@ -76,13 +85,61 @@ public class Fragment0 extends Fragment {
         progressBar = new ProgressBar(getActivity());
         progressBar.setVisibility(View.VISIBLE);
         listView.addFooterView(progressBar);
-        
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                CLog.d(CLog.getTag(), "firstVisibleItem:" + firstVisibleItem + "/visibleItemCount:" + visibleItemCount + "/totalItemCount:" + totalItemCount);
+                final int lastItem = firstVisibleItem + visibleItemCount;
+
+                if (listView.getFooterViewsCount() == 0)
+                    listView.addFooterView(progressBar);
+
+                //Reach to end of ListView
+                if ((lastItem == totalItemCount) && myDataList != null && myDataList.size() != 0) {
+                    //Every downloaded data which is supposed to be filled in the ListView has been loaded.
+                    if (totalDataLength == myDataList.size())
+                        //Hide the footer
+                        listView.removeFooterView(progressBar);
+                    else {
+                        loadMore();
+                    }
+                }
+
+            }
+        });
         return view;
     }
 
-    private void fillInData() {
-        myDataList = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+    private void loadMore() {
+        CLog.i(CLog.getTag(), "loadMore()");
+        int rest = totalDataLength - myDataList.size();
+        //If the rest of items < LOADING_ITEMS, just load the rest.
+        int loadingSize = rest > LOADING_ITEMS ? LOADING_ITEMS : rest;
+        if (loadingSize > 0) {
+            fillInData(loadingSize);
+            //update data in adapter
+            adapter.setMyDataList(myDataList);
+            //redraw ListView
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private int lpPointer = 0;
+
+    /**
+     * Loading loadingProgress items at a time
+     *
+     * @param loadingProgress how many items are supposed to be load at a time
+     */
+    private void fillInData(int loadingProgress) {
+        loadingProgress += lpPointer;
+        for (int i = lpPointer; i < loadingProgress; i++) {
+            lpPointer++;
             MyData mData = new MyData();
             mData.setTitle("TITLE " + i);
             mData.setDescription("DESC. " + i);
@@ -91,9 +148,9 @@ public class Fragment0 extends Fragment {
         }
     }
 
-    private void fillInNewData() {
-        myDataList = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+    private void fillInNewData(int loadingProgress) {
+        loadingProgress += lpPointer;
+        for (int i = lpPointer; i < loadingProgress; i++) {
             MyData mData = new MyData();
             mData.setTitle("new TITLE " + i);
             mData.setDescription("new DESC. " + i);
@@ -106,8 +163,11 @@ public class Fragment0 extends Fragment {
         public void run() {
             //refill data
             myDataList.clear();
-            fillInNewData();
+            lpPointer = 0;
+            fillInNewData(LOADING_ITEMS);
+            //update data in adapter
             adapter.setMyDataList(myDataList);
+            //redraw ListView
             adapter.notifyDataSetChanged();
             //stop refreshing
             swipeRefreshLayout.setRefreshing(false);
@@ -115,7 +175,7 @@ public class Fragment0 extends Fragment {
     };
 
 
-    private final String[] IMAGES = new String[]{
+    private final static String[] IMAGES = new String[]{
             // Heavy images
             "https://lh6.googleusercontent.com/-55osAWw3x0Q/URquUtcFr5I/AAAAAAAAAbs/rWlj1RUKrYI/s1024/A%252520Photographer.jpg",
             "https://lh4.googleusercontent.com/--dq8niRp7W4/URquVgmXvgI/AAAAAAAAAbs/-gnuLQfNnBA/s1024/A%252520Song%252520of%252520Ice%252520and%252520Fire.jpg",
