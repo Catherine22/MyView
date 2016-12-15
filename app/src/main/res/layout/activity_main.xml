@@ -14,13 +14,14 @@
     <catherine.com.myview.view.PagerSlidingTabStrip
         android:id="@+id/pagertabs"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         app:pstsDividerColor="@android:color/transparent"
         app:pstsDividerPadding="0dp"
         app:pstsIndicatorColor="@color/action_bar_background"
         app:pstsIndicatorHeight="2dp"
         app:pstsShouldExpand="true"
         app:pstsTabSwitch="true"
+        app:pstsTabPaddingLeftRight="0dp"
         app:pstsUnderlineHeight="2dp"/>
 
     <catherine.com.myview.view.CustomViewPager

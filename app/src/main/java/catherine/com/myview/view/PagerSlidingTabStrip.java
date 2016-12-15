@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -36,11 +37,11 @@ import catherine.com.myview.R;
 public class PagerSlidingTabStrip extends HorizontalScrollView {
 
     public interface IconTabProvider {
-        public int getPageIconResId(int position);
+        int getPageIconResId(int position);
     }
 
     public interface CustomTabProvider {
-        public View getCustomTabView(int position);
+        View getCustomTabView(int position);
     }
 
     // @formatter:off
@@ -246,6 +247,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
     private void addIconTab(final int position, int resId) {
 
         ImageButton tab = new ImageButton(getContext());
+        tab.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         tab.setImageResource(resId);
 
         addTab(position, tab);

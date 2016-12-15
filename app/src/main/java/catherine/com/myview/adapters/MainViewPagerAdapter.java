@@ -3,7 +3,6 @@ package catherine.com.myview.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,7 @@ import catherine.com.myview.Fragment0;
 import catherine.com.myview.Fragment1;
 import catherine.com.myview.Fragment2;
 import catherine.com.myview.Fragment3;
+import catherine.com.myview.Fragment4;
 import catherine.com.myview.view.PagerSlidingTabStrip;
 
 /**
@@ -21,10 +21,9 @@ import catherine.com.myview.view.PagerSlidingTabStrip;
  */
 
 public class MainViewPagerAdapter extends FragmentStatePagerAdapter implements PagerSlidingTabStrip.IconTabProvider {
-    private List<View> viewTabs = new ArrayList<View>();
     private List<Integer> viewTabsResource = new ArrayList<Integer>();
-    private Fragment fragment0, fragment1, fragment2, fragment3;
-    private final int PAGES = 4;
+    private Fragment fragment0, fragment1, fragment2, fragment3, fragment4;
+    private final int PAGES = 5;
 
     public MainViewPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -51,6 +50,10 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter implements P
                 if (fragment3 == null)
                     fragment3 = new Fragment3();
                 return fragment3;
+            case 4:
+                if (fragment4 == null)
+                    fragment4 = new Fragment4();
+                return fragment4;
             default:
                 throw new IllegalArgumentException("The item position should be less or equal to:" + PAGES);
         }

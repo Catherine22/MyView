@@ -19,16 +19,18 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+//----------------------------ViewPager----------------------------
         adapter = new MainViewPagerAdapter(getSupportFragmentManager());
         adapter.addViewTabResource(R.drawable.selector01);
         adapter.addViewTabResource(R.drawable.selector02);
         adapter.addViewTabResource(R.drawable.selector03);
         adapter.addViewTabResource(R.drawable.selector04);
+        adapter.addViewTabResource(R.drawable.selector05);
 
         viewPager = (CustomViewPager) findViewById(R.id.pager);
         viewPager.setOffscreenPageLimit(4);
         viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(0);
 
         tabs = (PagerSlidingTabStrip) findViewById(R.id.pagertabs);
         tabs.setViewPager(viewPager);
@@ -49,5 +51,6 @@ public class MainActivity extends FragmentActivity {
 
             }
         });
+//----------------------------ViewPager----------------------------
     }
 }

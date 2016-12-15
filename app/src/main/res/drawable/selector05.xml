@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item android:drawable="@drawable/a3_monster" android:state_selected="true"/>
+	<item android:drawable="@drawable/btn03_non_monster"/>
+
+</selector>
