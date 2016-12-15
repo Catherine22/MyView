@@ -29,7 +29,7 @@ import catherine.com.myview.entities.MyData;
  * catherine919@soft-world.com.tw
  */
 
-public class Fragment0 extends Fragment {
+public class RefreshableListFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private ListView listView;
     private ProgressBar progressBar;
@@ -48,7 +48,7 @@ public class Fragment0 extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment0, container, false);
+        View view = inflater.inflate(R.layout.frag_refreshable_list, container, false);
         timerHandler = new Handler();
         myDataList = new ArrayList<>();
         fillInData(LOADING_ITEMS);
