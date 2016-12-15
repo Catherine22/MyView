@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/soft_game_main_menu_02" android:state_selected="true" />
-    <item android:drawable="@drawable/soft_game_menu_cut_02" />
+    <item android:drawable="@drawable/s02_press" android:state_selected="true" />
+    <item android:drawable="@drawable/s02" />
 </selector>

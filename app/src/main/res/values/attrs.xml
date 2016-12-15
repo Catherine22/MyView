@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="PagerSlidingTabStrip">
-        <attr name="pstsIndicatorColor" format="color" />
-        <attr name="pstsUnderlineColor" format="color" />
+        <attr name="pstsIndicatorColor" format="color" /><!-- 选中项目的下划线的颜色 -->
+        <attr name="pstsUnderlineColor" format="color" /><!-- 下划线的高颜色 -->
         <attr name="pstsDividerColor" format="color" />
-        <attr name="pstsIndicatorHeight" format="dimension" />
+        <attr name="pstsIndicatorHeight" format="dimension" /><!-- 选中项目的下划线的高度 -->
         <attr name="pstsUnderlineHeight" format="dimension" />
+        <attr name="pstsDrawUnderLineOnBottom" format="boolean" /><!-- 下划线的位置在上方还是下方 -->
         <attr name="pstsDividerPadding" format="dimension" />
         <attr name="pstsTabPaddingLeftRight" format="dimension" />
         <attr name="pstsTabTextSize" format="dimension" />
