@@ -8,6 +8,7 @@ MyView
 - [MainActivity]
 
 ## Refreshable ListView
+  - [x] Add a header
   - [x] Add a footer (in this case, showing a progressbar) to load more items when it reaches end.
   - [x] Pull to refresh
 
