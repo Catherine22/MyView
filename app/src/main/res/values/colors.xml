@@ -5,6 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="action_bar_background">#e45e52</color>
     <color name="background_tab_pressed">#6633B5E5</color>
+    <color name="half_transparent">#b5ffffff</color>
 
 
     <color name="red">#ea4335</color>

@@ -5,9 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.util.List;
 
@@ -15,22 +15,18 @@ import catherine.com.myview.R;
 import catherine.com.myview.entities.MyData;
 
 /**
- * Created by Catherine on 2016/12/15.
+ * Created by Catherine on 2016/12/16.
  * Soft-World Inc.
  * catherine919@soft-world.com.tw
  */
 
-public class ListViewAdapterFrag0 extends BaseAdapter {
+public class GridViewAdapterFrag1 extends BaseAdapter {
     private List<MyData> myDataList;
     private LayoutInflater mInflater;
 
-    public ListViewAdapterFrag0(Context ctx, List<MyData> myDataList) {
+    public GridViewAdapterFrag1(Context ctx, List<MyData> myDataList) {
         this.myDataList = myDataList;
         mInflater = LayoutInflater.from(ctx);
-    }
-
-    public void setMyDataList(List<MyData> newList) {
-        myDataList = newList;
     }
 
     @Override
@@ -50,27 +46,24 @@ public class ListViewAdapterFrag0 extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        ViewHolder viewHolder;
-
+        ViewHolder holder;
         if (view == null) {
-            view = mInflater.inflate(R.layout.lv_frag0_item, null);
-            viewHolder = new ViewHolder();
-            viewHolder.title = (TextView) view.findViewById(R.id.tv_title);
-            viewHolder.desc = (TextView) view.findViewById(R.id.tv_desc);
-            viewHolder.sdv = (SimpleDraweeView) view.findViewById(R.id.sdv);
-            view.setTag(viewHolder);
+            view = mInflater.inflate(R.layout.gc_frag1_item, null);
+            holder = new ViewHolder();
+            holder.title = (TextView) view.findViewById(R.id.tv_title);
+            holder.desc = (TextView) view.findViewById(R.id.tv_desc);
+            holder.pic = (ImageView) view.findViewById(R.id.iv);
+            view.setTag(holder);
         } else
-            viewHolder = (ViewHolder) view.getTag();
+            holder = (ViewHolder) view.getTag();
 
-        viewHolder.title.setText(myDataList.get(i).getTitle());
-        viewHolder.desc.setText(myDataList.get(i).getDescription());
-        viewHolder.sdv.setImageURI(myDataList.get(i).getPicUrl());
-
+        holder.title.setText(myDataList.get(i).getTitle());
+        holder.desc.setText(myDataList.get(i).getDescription());
         return view;
     }
 
     private class ViewHolder {
         TextView title, desc;
-        SimpleDraweeView sdv;
+        ImageView pic;
     }
 }
