@@ -54,7 +54,6 @@ public class Fragment1 extends Fragment {
         myDataList = new ArrayList<>();
         timerHandler = new Handler();
         fillInData(50);
-        adapter = new RecyclerViewAdapterFrag1(getActivity(), myDataList, null);
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl);
         swipeRefreshLayout.setColorSchemeResources(R.color.red, R.color.yellow, R.color.green, R.color.blue);
@@ -94,6 +93,29 @@ public class Fragment1 extends Fragment {
         rv.addItemDecoration(new DividerGridItemDecoration(getActivity()));
         rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
 
+        adapter = new RecyclerViewAdapterFrag1(getActivity(), myDataList, new RecyclerViewAdapterFrag1.OnItemClickLitener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                CLog.d(CLog.getTag(), "onItemClick " + position);
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+                CLog.d(CLog.getTag(), "onItemLongClick " + position);
+            }
+
+            @Override
+            public void onItemSwap(int fromPosition, int toPosition) {
+                CLog.d(CLog.getTag(), "onItemSwap " + fromPosition + " to " + toPosition);
+            }
+
+            @Override
+            public void onItemDismiss(int position, MyData item) {
+                CLog.d(CLog.getTag(), "onItemDismiss " + position);
+            }
+        });
+        adapter.addHeader(title);
+        adapter.addFooter(progressBar);
         rv.setAdapter(adapter);
         return view;
     }
