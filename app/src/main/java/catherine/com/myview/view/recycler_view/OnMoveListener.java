@@ -10,9 +10,9 @@ package catherine.com.myview.view.recycler_view;
 /**
  * 用于通知底层数据的更新
  */
-public interface OnRecyclerViewItemTouch {
+public interface OnMoveListener {
 
-    void onItemMove(int fromPosition, int toPosition);
+    void onItemDragAndDrop(int fromPosition, int toPosition);
 
-    void onItemDismiss(int position);
+    void onItemSwipe(int position);
 }

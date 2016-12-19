@@ -26,6 +26,9 @@ import catherine.com.myview.common.Resources;
 import catherine.com.myview.entities.MyData;
 import catherine.com.myview.view.recycler_view.DividerGridItemDecoration;
 import catherine.com.myview.view.ViewUtils;
+import catherine.com.myview.view.recycler_view.OnFooterClickListener;
+import catherine.com.myview.view.recycler_view.OnHeaderClickListener;
+import catherine.com.myview.view.recycler_view.OnItemClickListener;
 
 /**
  * Created by Catherine on 2016/12/15.
@@ -93,7 +96,7 @@ public class Fragment1 extends Fragment {
         rv.addItemDecoration(new DividerGridItemDecoration(getActivity()));
         rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
 
-        adapter = new RecyclerViewAdapterFrag1(getActivity(), myDataList, new RecyclerViewAdapterFrag1.OnItemClickLitener() {
+        adapter = new RecyclerViewAdapterFrag1(getActivity(), myDataList, new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 CLog.d(CLog.getTag(), "onItemClick " + position);
@@ -112,6 +115,32 @@ public class Fragment1 extends Fragment {
             @Override
             public void onItemDismiss(int position, MyData item) {
                 CLog.d(CLog.getTag(), "onItemDismiss " + position);
+            }
+        });
+        adapter.setOnHeaderClickListener(new OnHeaderClickListener() {
+            @Override
+            public void onHeaderClick(View view, int position) {
+                CLog.d(CLog.getTag(), "onHeaderClick " + position);
+
+            }
+
+            @Override
+            public void onHeaderLongClick(View view, int position) {
+                CLog.d(CLog.getTag(), "onHeaderLongClick " + position);
+
+            }
+        });
+        adapter.setOnFooterClickListener(new OnFooterClickListener() {
+            @Override
+            public void onFooterClick(View view, int position) {
+                CLog.d(CLog.getTag(), "onFooterClick " + position);
+
+            }
+
+            @Override
+            public void onFooterLongClick(View view, int position) {
+                CLog.d(CLog.getTag(), "onFooterLongClick " + position);
+
             }
         });
         adapter.addHeader(title);

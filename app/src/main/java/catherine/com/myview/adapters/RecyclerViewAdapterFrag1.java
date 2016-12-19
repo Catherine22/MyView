@@ -27,7 +27,10 @@ import java.util.List;
 import catherine.com.myview.R;
 import catherine.com.myview.common.CLog;
 import catherine.com.myview.entities.MyData;
-import catherine.com.myview.view.recycler_view.OnRecyclerViewItemTouch;
+import catherine.com.myview.view.recycler_view.OnFooterClickListener;
+import catherine.com.myview.view.recycler_view.OnHeaderClickListener;
+import catherine.com.myview.view.recycler_view.OnItemClickListener;
+import catherine.com.myview.view.recycler_view.OnMoveListener;
 
 /**
  * Created by Catherine on 2016/12/16.
@@ -35,7 +38,7 @@ import catherine.com.myview.view.recycler_view.OnRecyclerViewItemTouch;
  * catherine919@soft-world.com.tw
  */
 
-public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewAdapterFrag1.MyViewHolder> implements OnRecyclerViewItemTouch {
+public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewAdapterFrag1.MyViewHolder> implements OnMoveListener {
 
     private Context ctx;
     private List<MyData> myDataList;
@@ -46,8 +49,8 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
     private final int IS_HEADER = 1;
     private final int IS_FOOTER = 2;
 
-    public RecyclerViewAdapterFrag1(Context ctx, List<MyData> myDataList, @Nullable OnItemClickLitener mOnItemClickLitener) {
-        this.mOnItemClickLitener = mOnItemClickLitener;
+    public RecyclerViewAdapterFrag1(Context ctx, List<MyData> myDataList, @Nullable OnItemClickListener mOnItemClickListener) {
+        this.mOnItemClickListener = mOnItemClickListener;
         this.ctx = ctx;
         this.myDataList = myDataList;
         headers = new ArrayList<>();
@@ -135,17 +138,17 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
     }
 
     /**
-     * 交换items(同时各自的position也会交换)
+     * 拖移item做交换(同时各自的position也会交换)
      *
      * @param fromPosition item1原本的位置
      * @param toPosition   item1新的位置
      */
     @Override
-    public void onItemMove(int fromPosition, int toPosition) {
+    public void onItemDragAndDrop(int fromPosition, int toPosition) {
         Collections.swap(myDataList, fromPosition, toPosition);
         //非常重要，调用后Adapter才能知道发生了改变。
         notifyItemMoved(fromPosition, toPosition);
-        mOnItemClickLitener.onItemSwap(fromPosition, toPosition);
+        mOnItemClickListener.onItemSwap(fromPosition, toPosition);
     }
 
     /**
@@ -154,36 +157,83 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
      * @param position item的位置
      */
     @Override
-    public void onItemDismiss(int position) {
-        mOnItemClickLitener.onItemDismiss(position, myDataList.get(position - headers.size()));
+    public void onItemSwipe(int position) {
+        mOnItemClickListener.onItemDismiss(position, myDataList.get(position - headers.size()));
         myDataList.remove(position);
         //非常重要，调用后Adapter才能知道发生了改变。
         notifyItemRemoved(position);
     }
 
-    public interface OnItemClickLitener {
-        void onItemClick(View view, int position);
 
-        void onItemLongClick(View view, int position);
+    private OnItemClickListener mOnItemClickListener;
 
-        void onItemSwap(int fromPosition, int toPosition);
-
-        void onItemDismiss(int position, MyData item);
-
+    /**
+     * 设置监听item点击事件
+     *
+     * @param mOnItemClickListener 点击事件接口
+     */
+    public void setOnItemClickListener(OnItemClickListener mOnItemClickListener) {
+        this.mOnItemClickListener = mOnItemClickListener;
     }
 
-    private OnItemClickLitener mOnItemClickLitener;
+    private OnHeaderClickListener mOnHeaderClickListener;
 
-    public void setOnItemClickLitener(OnItemClickLitener mOnItemClickLitener) {
-        this.mOnItemClickLitener = mOnItemClickLitener;
+    /**
+     * 设置监听header和footer点击事件
+     *
+     * @param mOnHeaderClickListener 点击事件接口
+     */
+    @SuppressWarnings("unused")
+    public void setOnHeaderClickListener(OnHeaderClickListener mOnHeaderClickListener) {
+        this.mOnHeaderClickListener = mOnHeaderClickListener;
+    }
+
+    private OnFooterClickListener mOnFooterClickListener;
+
+    /**
+     * 设置监听header和footer点击事件
+     *
+     * @param mOnFooterClickListener 点击事件接口
+     */
+    @SuppressWarnings("unused")
+    public void setOnFooterClickListener(OnFooterClickListener mOnFooterClickListener) {
+        this.mOnFooterClickListener = mOnFooterClickListener;
     }
 
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
-        if (getItemViewType(position) == IS_HEADER) {
-            return;
-        } else if (getItemViewType(position) == IS_FOOTER) {
-            return;
+        if (getItemViewType(position) == IS_HEADER && mOnHeaderClickListener != null) {
+            headers.get(position).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int pos = holder.getLayoutPosition();
+                    mOnHeaderClickListener.onHeaderClick(headers.get(position), pos);
+                }
+            });
+            headers.get(position).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    int pos = holder.getLayoutPosition();
+                    mOnHeaderClickListener.onHeaderLongClick(headers.get(position), pos);
+                    return false;
+                }
+            });
+        } else if (getItemViewType(position) == IS_FOOTER && mOnFooterClickListener != null) {
+            footers.get(position - (myDataList.size() + headers.size())).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int pos = holder.getLayoutPosition() - (myDataList.size() + headers.size());
+                    mOnFooterClickListener.onFooterClick(footers.get(pos), pos);
+                }
+            });
+            footers.get(position - (myDataList.size() + headers.size())).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    int pos = holder.getLayoutPosition() - (myDataList.size() + headers.size());
+                    mOnFooterClickListener.onFooterLongClick(footers.get(pos), pos);
+                    return false;
+                }
+            });
         } else {
             holder.title.setText(myDataList.get(position - headers.size()).getTitle());
             holder.desc.setText(myDataList.get(position - headers.size()).getDescription());
@@ -205,12 +255,12 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
             holder.sdv.setController(controller);
 
             // 如果设置了回调，则设置点击事件
-            if (mOnItemClickLitener != null) {
+            if (mOnItemClickListener != null) {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         int pos = holder.getLayoutPosition();
-                        mOnItemClickLitener.onItemClick(holder.itemView, pos);
+                        mOnItemClickListener.onItemClick(holder.itemView, pos);
                     }
                 });
 
@@ -218,13 +268,12 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
                     @Override
                     public boolean onLongClick(View v) {
                         int pos = holder.getLayoutPosition();
-                        mOnItemClickLitener.onItemLongClick(holder.itemView, pos);
+                        mOnItemClickListener.onItemLongClick(holder.itemView, pos);
                         return false;
                     }
                 });
             }
         }
-
     }
 
     private ControllerListener listener = new BaseControllerListener<ImageInfo>() {
