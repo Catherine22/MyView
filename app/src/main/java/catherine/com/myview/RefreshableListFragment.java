@@ -23,6 +23,7 @@ import catherine.com.myview.adapters.ListViewAdapterFrag0;
 import catherine.com.myview.common.CLog;
 import catherine.com.myview.common.Resources;
 import catherine.com.myview.entities.MyData;
+import catherine.com.myview.view.ViewUtils;
 
 /**
  * Created by Catherine on 2016/12/15.
@@ -78,7 +79,7 @@ public class RefreshableListFragment extends Fragment {
             title.setBackgroundColor(getResources().getColor(R.color.action_bar_background));
         title.setGravity(Gravity.CENTER);
         title.setTextColor(Color.WHITE);
-        title.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        title.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ViewUtils.convertDpToPixel(getActivity(),25)));
         title.setText("Refreshable ListView");
         listView.addHeaderView(title);
 
