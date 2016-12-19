@@ -10,7 +10,7 @@ package catherine.com.myview.view.recycler_view;
 /**
  * 用于通知底层数据的更新
  */
-public interface OnMoveListener {
+public interface OnItemMoveListener {
 
     void onItemDragAndDrop(int fromPosition, int toPosition);
 

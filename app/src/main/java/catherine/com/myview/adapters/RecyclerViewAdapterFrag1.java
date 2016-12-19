@@ -30,7 +30,7 @@ import catherine.com.myview.entities.MyData;
 import catherine.com.myview.view.recycler_view.OnFooterClickListener;
 import catherine.com.myview.view.recycler_view.OnHeaderClickListener;
 import catherine.com.myview.view.recycler_view.OnItemClickListener;
-import catherine.com.myview.view.recycler_view.OnMoveListener;
+import catherine.com.myview.view.recycler_view.OnItemMoveListener;
 
 /**
  * Created by Catherine on 2016/12/16.
@@ -38,7 +38,7 @@ import catherine.com.myview.view.recycler_view.OnMoveListener;
  * catherine919@soft-world.com.tw
  */
 
-public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewAdapterFrag1.MyViewHolder> implements OnMoveListener {
+public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewAdapterFrag1.MyViewHolder> implements OnItemMoveListener {
 
     private Context ctx;
     private List<MyData> myDataList;
@@ -148,7 +148,7 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
         Collections.swap(myDataList, fromPosition, toPosition);
         //非常重要，调用后Adapter才能知道发生了改变。
         notifyItemMoved(fromPosition, toPosition);
-        mOnItemClickListener.onItemSwap(fromPosition, toPosition);
+        mOnItemClickListener.onItemSwap(fromPosition - headers.size(), toPosition - headers.size());
     }
 
     /**
@@ -158,7 +158,7 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
      */
     @Override
     public void onItemSwipe(int position) {
-        mOnItemClickListener.onItemDismiss(position, myDataList.get(position - headers.size()));
+        mOnItemClickListener.onItemDismiss(position - headers.size(), myDataList.get(position - headers.size()));
         myDataList.remove(position);
         //非常重要，调用后Adapter才能知道发生了改变。
         notifyItemRemoved(position);
@@ -238,7 +238,7 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
             holder.title.setText(myDataList.get(position - headers.size()).getTitle());
             holder.desc.setText(myDataList.get(position - headers.size()).getDescription());
             //If you don't need to do anything else and just want to show images, all you have to do is setImageURI()
-            //viewHolder.sdv.setImageURI(myDataList.get(position-headers.size()).getPicUrl());
+//            holder.sdv.setImageURI(myDataList.get(position-headers.size()).getPicUrl());
 
             //fresco
             //supports the streaming of progressive JPEG images over the network.
@@ -259,7 +259,7 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int pos = holder.getLayoutPosition();
+                        int pos = holder.getLayoutPosition() - headers.size();
                         mOnItemClickListener.onItemClick(holder.itemView, pos);
                     }
                 });
@@ -267,7 +267,7 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
                 holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        int pos = holder.getLayoutPosition();
+                        int pos = holder.getLayoutPosition() - headers.size();
                         mOnItemClickListener.onItemLongClick(holder.itemView, pos);
                         return false;
                     }

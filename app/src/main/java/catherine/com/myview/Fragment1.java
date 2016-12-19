@@ -7,8 +7,10 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +28,8 @@ import catherine.com.myview.common.Resources;
 import catherine.com.myview.entities.MyData;
 import catherine.com.myview.view.recycler_view.DividerGridItemDecoration;
 import catherine.com.myview.view.ViewUtils;
+import catherine.com.myview.view.recycler_view.DividerItemDecoration;
+import catherine.com.myview.view.recycler_view.ItemMoveCallback;
 import catherine.com.myview.view.recycler_view.OnFooterClickListener;
 import catherine.com.myview.view.recycler_view.OnHeaderClickListener;
 import catherine.com.myview.view.recycler_view.OnItemClickListener;
@@ -40,6 +44,7 @@ public class Fragment1 extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView rv;
     private RecyclerViewAdapterFrag1 adapter;
+    private ItemTouchHelper itemTouchHelper;
     private List<MyData> myDataList;
     private Handler timerHandler;
     private ProgressBar progressBar;
@@ -88,14 +93,15 @@ public class Fragment1 extends Fragment {
 
         //类似ListView的效果
         //加入分割线
-//        rv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-//        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         //类似GridView的效果
         //加入分割线
-        rv.addItemDecoration(new DividerGridItemDecoration(getActivity()));
-        rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
+//        rv.addItemDecoration(new DividerGridItemDecoration(getActivity()));
+//        rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
 
+        //添加items的点击回调事件
         adapter = new RecyclerViewAdapterFrag1(getActivity(), myDataList, new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -117,6 +123,7 @@ public class Fragment1 extends Fragment {
                 CLog.d(CLog.getTag(), "onItemDismiss " + position);
             }
         });
+        //添加headers的点击回调事件
         adapter.setOnHeaderClickListener(new OnHeaderClickListener() {
             @Override
             public void onHeaderClick(View view, int position) {
@@ -130,6 +137,7 @@ public class Fragment1 extends Fragment {
 
             }
         });
+        //添加footers的点击回调事件
         adapter.setOnFooterClickListener(new OnFooterClickListener() {
             @Override
             public void onFooterClick(View view, int position) {
@@ -143,6 +151,11 @@ public class Fragment1 extends Fragment {
 
             }
         });
+
+        //添加拖移（交换位置）、左右滑动（删除）事件
+        itemTouchHelper = new ItemTouchHelper(new ItemMoveCallback(adapter));
+        itemTouchHelper.attachToRecyclerView(rv);
+
         adapter.addHeader(title);
         adapter.addFooter(progressBar);
         rv.setAdapter(adapter);
