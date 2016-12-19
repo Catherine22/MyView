@@ -6,23 +6,25 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import catherine.com.myview.adapters.GridViewAdapterFrag1;
+import catherine.com.myview.adapters.RecyclerViewAdapterFrag1;
 import catherine.com.myview.common.CLog;
 import catherine.com.myview.common.Resources;
 import catherine.com.myview.entities.MyData;
-import catherine.com.myview.view.HeaderGridView;
+import catherine.com.myview.view.recycler_view.DividerGridItemDecoration;
 import catherine.com.myview.view.ViewUtils;
 
 /**
@@ -33,10 +35,11 @@ import catherine.com.myview.view.ViewUtils;
 
 public class Fragment1 extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
-    private HeaderGridView gv;
-    private GridViewAdapterFrag1 adapter;
+    private RecyclerView rv;
+    private RecyclerViewAdapterFrag1 adapter;
     private List<MyData> myDataList;
     private Handler timerHandler;
+    private ProgressBar progressBar;
 
     /**
      * Load how many items at a time
@@ -51,7 +54,7 @@ public class Fragment1 extends Fragment {
         myDataList = new ArrayList<>();
         timerHandler = new Handler();
         fillInData(50);
-        adapter = new GridViewAdapterFrag1(getActivity(), myDataList);
+        adapter = new RecyclerViewAdapterFrag1(getActivity(), myDataList, null);
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl);
         swipeRefreshLayout.setColorSchemeResources(R.color.red, R.color.yellow, R.color.green, R.color.blue);
@@ -64,8 +67,8 @@ public class Fragment1 extends Fragment {
                 timerHandler.postDelayed(runnable, 3000);
             }
         });
-        gv = (HeaderGridView) view.findViewById(R.id.gv);
-        //Set the header on ListView
+        rv = (RecyclerView) view.findViewById(R.id.rv);
+        //Set the header on GridView
         TextView title = new TextView(getActivity());
         title.setTextSize(18);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -75,9 +78,23 @@ public class Fragment1 extends Fragment {
         title.setTextColor(Color.WHITE);
         title.setGravity(Gravity.CENTER);
         title.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ViewUtils.convertDpToPixel(getActivity(), 25)));
-        title.setText("Refreshable GridView");
-        gv.addHeaderView(title);
-        gv.setAdapter(adapter);
+        title.setText("Refreshable RecyclerView");
+
+        //Set the footer on GridView
+
+        progressBar = new ProgressBar(getActivity());
+
+        //类似ListView的效果
+        //加入分割线
+//        rv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+//        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        //类似GridView的效果
+        //加入分割线
+        rv.addItemDecoration(new DividerGridItemDecoration(getActivity()));
+        rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
+
+        rv.setAdapter(adapter);
         return view;
     }
 
@@ -120,7 +137,7 @@ public class Fragment1 extends Fragment {
             lpPointer = 0;
             fillInNewData(LOADING_ITEMS);
             //update data in adapter
-            adapter.setMyDataList(myDataList);
+            adapter.updateDataSet(myDataList);
             //redraw ListView
             adapter.notifyDataSetChanged();
             //stop refreshing
@@ -137,7 +154,7 @@ public class Fragment1 extends Fragment {
         if (loadingSize > 0) {
             fillInData(loadingSize);
             //update data in adapter
-            adapter.setMyDataList(myDataList);
+            adapter.updateDataSet(myDataList);
             //redraw ListView
             adapter.notifyDataSetChanged();
         }

@@ -119,7 +119,7 @@ public class ListViewAdapterFrag0 extends BaseAdapter {
                     qualityInfo.getQuality(),
                     qualityInfo.isOfGoodEnoughQuality(),
                     qualityInfo.isOfFullQuality());
-            CLog.d(CLog.getTag(), content);
+//            CLog.d(CLog.getTag(), content);
         }
 
         @Override

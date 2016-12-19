@@ -95,7 +95,7 @@ public class RefreshableListFragment extends Fragment {
 
             @Override
             public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                CLog.d(CLog.getTag(), "firstVisibleItem:" + firstVisibleItem + "/visibleItemCount:" + visibleItemCount + "/totalItemCount:" + totalItemCount);
+//                CLog.d(CLog.getTag(), "firstVisibleItem:" + firstVisibleItem + "/visibleItemCount:" + visibleItemCount + "/totalItemCount:" + totalItemCount);
                 final int lastItem = firstVisibleItem + visibleItemCount;
 
                 if (listView.getFooterViewsCount() == 0)
