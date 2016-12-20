@@ -13,8 +13,8 @@ Written by Catherine
   - [x] Add footers (in this case, showing a ProgressBar) to load more items when it reaches the end.     
 
   > **Note:**
-  > 1. Requesting data from your server at a time, but splitting the data into some groups to fill in ListView.
-  > 2. It also avoids OOM when you've got a lot of images to show because it increases heap by the first group of items if you don't scroll the ListView.
+  > 1. Requesting split data from your server many times, and scroll to download next group of data to fill in ListView.
+  > 2. Request fewer items at a time so that users don't download the whole data, they just download what the see.And your server queries database more efficient.
   > 3. Using Universal-Image-Loader, Volley and others libraries to load images.
   - [x] Pull to refresh with SwipeRefreshLayout
   - [RefreshableListFragment]
