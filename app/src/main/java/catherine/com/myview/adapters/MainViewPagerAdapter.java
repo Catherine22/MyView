@@ -7,8 +7,8 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import catherine.com.myview.Fragment0;
-import catherine.com.myview.Fragment1;
+import catherine.com.myview.RefreshableListFragment;
+import catherine.com.myview.RefreshableGridFragment;
 import catherine.com.myview.Fragment2;
 import catherine.com.myview.Fragment3;
 import catherine.com.myview.Fragment4;
@@ -34,11 +34,11 @@ public class MainViewPagerAdapter extends FragmentStatePagerAdapter implements P
         switch (position) {
             case 0:
                 if (fragment0 == null)
-                    fragment0 = new Fragment0();
+                    fragment0 = new RefreshableListFragment();
                 return fragment0;
             case 1:
                 if (fragment1 == null)
-                    fragment1 = new Fragment1();
+                    fragment1 = new RefreshableGridFragment();
                 return fragment1;
 
             case 2:
