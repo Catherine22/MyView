@@ -148,9 +148,9 @@ public class RefreshableGridFragment extends Fragment {
             }
         });
 
-        //添加拖移（交换位置）、左右滑动（删除）事件
-        itemTouchHelper = new ItemTouchHelper(new ItemMoveCallback(adapter));
-        itemTouchHelper.attachToRecyclerView(rv);
+        //添加拖移（交换位置）、左右滑动（删除）事件（在grids中不适用拖移）
+//        itemTouchHelper = new ItemTouchHelper(new ItemMoveCallback(adapter));
+//        itemTouchHelper.attachToRecyclerView(rv);
 
         adapter.addHeader(title);
         adapter.addFooter(progressBar);
