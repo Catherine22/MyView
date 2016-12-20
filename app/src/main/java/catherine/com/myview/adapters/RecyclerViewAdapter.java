@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +39,7 @@ import catherine.com.myview.view.recycler_view.OnItemMoveListener;
  * catherine919@soft-world.com.tw
  */
 
-public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewAdapterFrag1.MyViewHolder> implements OnItemMoveListener {
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> implements OnItemMoveListener {
 
     private Context ctx;
     private List<MyData> myDataList;
@@ -49,25 +50,12 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
     private final int IS_HEADER = 1;
     private final int IS_FOOTER = 2;
 
-    public RecyclerViewAdapterFrag1(Context ctx, List<MyData> myDataList, @Nullable OnItemClickListener mOnItemClickListener) {
+    public RecyclerViewAdapter(Context ctx, List<MyData> myDataList, @Nullable OnItemClickListener mOnItemClickListener) {
         this.mOnItemClickListener = mOnItemClickListener;
         this.ctx = ctx;
         this.myDataList = myDataList;
         headers = new ArrayList<>();
         footers = new ArrayList<>();
-    }
-
-    @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == IS_HEADER) {
-            return new MyViewHolder(headers.get(0), IS_HEADER);
-        } else if (viewType == IS_FOOTER) {
-            return new MyViewHolder(footers.get(0), IS_FOOTER);
-        } else {
-            return new MyViewHolder(LayoutInflater.from(
-                    ctx).inflate(R.layout.gc_frag1_item, parent,
-                    false), DEFAULT);
-        }
     }
 
     /**
@@ -79,17 +67,32 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
         return myDataList;
     }
 
+    /**
+     * 添加item到列表
+     *
+     * @param item MyData
+     */
     public void addItem(MyData item) {
         myDataList.add(item);
         notifyDataSetChanged();
     }
 
+    /**
+     * 添加header
+     *
+     * @param view header
+     */
     public void addHeader(View view) {
         if (view != null) {
             headers.add(view);
         }
     }
 
+    /**
+     * 添加footer
+     *
+     * @param view footer
+     */
     public void addFooter(View view) {
         if (view != null) {
             footers.add(view);
@@ -116,25 +119,6 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
     @Override
     public int getItemCount() {
         return myDataList.size() + headers.size() + footers.size();
-    }
-
-    /**
-     * 重写这个方法，很重要，是加入Header和Footer的关键，我们通过判断item的类型，从而绑定不同的view
-     */
-    @Override
-    public int getItemViewType(int position) {
-        if (headers.size() == 0 && footers.size() == 0) {
-            return DEFAULT;
-        }
-
-        if (position == (headers.size() - 1)) {
-            return IS_HEADER;
-        }
-        if (position >= (getItemCount() - footers.size())) {
-            return IS_FOOTER;
-        }
-
-        return DEFAULT;
     }
 
     /**
@@ -166,6 +150,7 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
 
 
     private OnItemClickListener mOnItemClickListener;
+    private OnHeaderClickListener mOnHeaderClickListener;
 
     /**
      * 设置监听item点击事件
@@ -175,8 +160,6 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
     public void setOnItemClickListener(OnItemClickListener mOnItemClickListener) {
         this.mOnItemClickListener = mOnItemClickListener;
     }
-
-    private OnHeaderClickListener mOnHeaderClickListener;
 
     /**
      * 设置监听header和footer点击事件
@@ -200,8 +183,65 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
         this.mOnFooterClickListener = mOnFooterClickListener;
     }
 
+    /**
+     * 重写这个方法，很重要，是加入Header和Footer的关键，我们通过判断item的类型，从而绑定不同的view
+     */
+    @Override
+    public int getItemViewType(int position) {
+        if (headers.size() == 0 && footers.size() == 0) {
+            return DEFAULT;
+        }
+
+        if (position == (headers.size() - 1)) {
+            return IS_HEADER;
+        }
+        if (position >= (getItemCount() - footers.size())) {
+            return IS_FOOTER;
+        }
+
+        return DEFAULT;
+    }
+
+    /**
+     * GridLayoutManager中的setSpanSizeLookup可以设置每个item所占的格数，<br>
+     * 当前item为header或footer时，则占用一整栏，若为一般item则占用一格。
+     *
+     * @param recyclerView my recyclerView
+     */
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
+        if (manager instanceof GridLayoutManager) {
+            final GridLayoutManager gridLayoutManager = (GridLayoutManager) manager;
+            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    if (getItemViewType(position) == IS_HEADER || getItemViewType(position) == IS_FOOTER)
+                        return gridLayoutManager.getSpanCount();
+                    else
+                        return 1;
+                }
+            });
+        }
+    }
+
+    @Override
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == IS_HEADER) {
+            return new MyViewHolder(headers.get(0), IS_HEADER);
+        } else if (viewType == IS_FOOTER) {
+            return new MyViewHolder(footers.get(0), IS_FOOTER);
+        } else {
+            return new MyViewHolder(LayoutInflater.from(
+                    ctx).inflate(R.layout.gc_frag1_item, parent,
+                    false), DEFAULT);
+        }
+    }
+
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
+        // 如果设置了回调，则设置点击事件（回调事件中，返回的是该header在header数组里的位置）
         if (getItemViewType(position) == IS_HEADER && mOnHeaderClickListener != null) {
             headers.get(position).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -218,7 +258,9 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
                     return false;
                 }
             });
-        } else if (getItemViewType(position) == IS_FOOTER && mOnFooterClickListener != null) {
+        }
+        // 如果设置了回调，则设置点击事件（回调事件中，返回的是该footer在footer数组里的位置）
+        else if (getItemViewType(position) == IS_FOOTER && mOnFooterClickListener != null) {
             footers.get(position - (myDataList.size() + headers.size())).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -254,7 +296,7 @@ public class RecyclerViewAdapterFrag1 extends RecyclerView.Adapter<RecyclerViewA
                     .build();
             holder.sdv.setController(controller);
 
-            // 如果设置了回调，则设置点击事件
+            // 如果设置了回调，则设置点击事件（回调事件中，返回的是item在数组里的位置，不含headers和footers）
             if (mOnItemClickListener != null) {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override

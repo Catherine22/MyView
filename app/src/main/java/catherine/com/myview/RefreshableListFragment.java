@@ -19,7 +19,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import catherine.com.myview.adapters.ListViewAdapterFrag0;
+import catherine.com.myview.adapters.ListViewAdapter;
 import catherine.com.myview.common.CLog;
 import catherine.com.myview.common.Resources;
 import catherine.com.myview.entities.MyData;
@@ -35,7 +35,7 @@ public class RefreshableListFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private ListView listView;
     private ProgressBar progressBar;
-    private ListViewAdapterFrag0 adapter;
+    private ListViewAdapter adapter;
     private List<MyData> myDataList;
     private Handler timerHandler;
 
@@ -67,7 +67,7 @@ public class RefreshableListFragment extends Fragment {
             }
         });
         listView = (ListView) view.findViewById(R.id.lv);
-        adapter = new ListViewAdapterFrag0(getActivity(), myDataList);
+        adapter = new ListViewAdapter(getActivity(), myDataList);
         listView.setAdapter(adapter);
 
 //Set the header on ListView

@@ -31,11 +31,11 @@ import catherine.com.myview.entities.MyData;
  * catherine919@soft-world.com.tw
  */
 
-public class ListViewAdapterFrag0 extends BaseAdapter {
+public class ListViewAdapter extends BaseAdapter {
     private List<MyData> myDataList;
     private LayoutInflater mInflater;
 
-    public ListViewAdapterFrag0(Context ctx, List<MyData> myDataList) {
+    public ListViewAdapter(Context ctx, List<MyData> myDataList) {
         this.myDataList = myDataList;
         mInflater = LayoutInflater.from(ctx);
     }

@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -22,13 +21,12 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import catherine.com.myview.adapters.RecyclerViewAdapterFrag1;
+import catherine.com.myview.adapters.RecyclerViewAdapter;
 import catherine.com.myview.common.CLog;
 import catherine.com.myview.common.Resources;
 import catherine.com.myview.entities.MyData;
 import catherine.com.myview.view.recycler_view.DividerGridItemDecoration;
 import catherine.com.myview.view.ViewUtils;
-import catherine.com.myview.view.recycler_view.DividerItemDecoration;
 import catherine.com.myview.view.recycler_view.ItemMoveCallback;
 import catherine.com.myview.view.recycler_view.OnFooterClickListener;
 import catherine.com.myview.view.recycler_view.OnHeaderClickListener;
@@ -40,10 +38,10 @@ import catherine.com.myview.view.recycler_view.OnItemClickListener;
  * catherine919@soft-world.com.tw
  */
 
-public class Fragment1 extends Fragment {
+public class RefreshableGridFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView rv;
-    private RecyclerViewAdapterFrag1 adapter;
+    private RecyclerViewAdapter adapter;
     private ItemTouchHelper itemTouchHelper;
     private List<MyData> myDataList;
     private Handler timerHandler;
@@ -75,7 +73,7 @@ public class Fragment1 extends Fragment {
             }
         });
         rv = (RecyclerView) view.findViewById(R.id.rv);
-        //Set the header on GridView
+        //Set a header on RecyclerView
         TextView title = new TextView(getActivity());
         title.setTextSize(18);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -87,22 +85,20 @@ public class Fragment1 extends Fragment {
         title.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ViewUtils.convertDpToPixel(getActivity(), 25)));
         title.setText("Refreshable RecyclerView");
 
-        //Set the footer on GridView
-
         progressBar = new ProgressBar(getActivity());
 
         //类似ListView的效果
         //加入分割线
-        rv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+//        rv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+//        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         //类似GridView的效果
         //加入分割线
-//        rv.addItemDecoration(new DividerGridItemDecoration(getActivity()));
-//        rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
+        rv.addItemDecoration(new DividerGridItemDecoration(getActivity()));
+        rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
 
         //添加items的点击回调事件
-        adapter = new RecyclerViewAdapterFrag1(getActivity(), myDataList, new OnItemClickListener() {
+        adapter = new RecyclerViewAdapter(getActivity(), myDataList, new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 CLog.d(CLog.getTag(), "onItemClick " + position);
