@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -43,10 +44,10 @@ public class RefreshableGridFragment extends Fragment {
     private RecyclerView rv;
     private RecyclerViewAdapter adapter;
     private ItemTouchHelper itemTouchHelper;
+    private int dividerHeight;
     private List<MyData> myDataList;
     private Handler timerHandler;
     private ProgressBar progressBar;
-    private DividerGridItemDecoration gridItemDecoration;
 
     /**
      * Load how many items at a time.
@@ -90,17 +91,23 @@ public class RefreshableGridFragment extends Fragment {
         progressBar = new ProgressBar(getActivity());
         progressBar.setVisibility(View.VISIBLE);
 
-        //Make RecyclerView seem like a ListView
-//        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+//-------------------------Make RecyclerView seem like a ListView-------------------------
+        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
         //Add dividers
-        rv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+        DividerItemDecoration listItemDecoration = new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST);
+        rv.addItemDecoration(listItemDecoration);
+        dividerHeight = listItemDecoration.getDividerHeight();
+//-------------------------Make RecyclerView seem like a ListView-------------------------
 
-        //Make RecyclerView seem like a GridView
-        final GridLayoutManager manager = new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false);
-        rv.setLayoutManager(manager);
-        //Add dividers
-        gridItemDecoration = new DividerGridItemDecoration(getActivity());
-        rv.addItemDecoration(gridItemDecoration);
+
+//-------------------------Make RecyclerView seem like a GridView-------------------------
+//        rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
+//        //Add dividers
+//        DividerGridItemDecoration gridItemDecoration = new DividerGridItemDecoration(getActivity());
+//        rv.addItemDecoration(gridItemDecoration);
+//        dividerHeight = gridItemDecoration.getDividerHeight();
+//-------------------------Make RecyclerView seem like a GridView-------------------------
+
 
         //Click items to call back
         adapter = new RecyclerViewAdapter(getActivity(), myDataList, new OnItemClickListener() {
@@ -175,8 +182,8 @@ public class RefreshableGridFragment extends Fragment {
                     adapter.addFooter(progressBar);
                 progressBar.setVisibility(View.VISIBLE);
 
-                //There is always a divider in the bottom so that the height of RecyclerView is the position of the last item and the height of a divider.
-                if (recyclerView.getHeight() == recyclerView.getChildAt(recyclerView.getChildCount() - 1).getBottom() + gridItemDecoration.getDividerHeight()) {
+                //There is always a divider in the bottom.
+                if (recyclerView.getHeight() + dividerHeight >= recyclerView.getChildAt(recyclerView.getChildCount() - 1).getBottom()) {
                     //It is scrolled all the way down here
 
                     // 滑不动了
