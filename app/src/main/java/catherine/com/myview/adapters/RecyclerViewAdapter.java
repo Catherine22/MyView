@@ -85,11 +85,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void addHeader(View view) {
         if (view != null) {
             headers.add(view);
+            notifyDataSetChanged();
         }
     }
 
     public void removeHeader(int position) {
         headers.remove(position);
+        notifyDataSetChanged();
     }
 
     public int getHeaderSize() {
@@ -104,11 +106,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void addFooter(View view) {
         if (view != null) {
             footers.add(view);
+            notifyDataSetChanged();
         }
     }
 
     public void removeFooter(int position) {
         footers.remove(position);
+        notifyDataSetChanged();
     }
 
     public int getFooterSize() {

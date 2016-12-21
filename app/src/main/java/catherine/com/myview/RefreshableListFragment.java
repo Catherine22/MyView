@@ -103,8 +103,7 @@ public class RefreshableListFragment extends Fragment {
                         if (listView.getFooterViewsCount() == 0)
                             listView.addFooterView(progressBar);
                         progressBar.setVisibility(View.VISIBLE);
-                        if (absListView.getLastVisiblePosition() == absListView.getAdapter().getCount() - 1 &&
-                                absListView.getChildAt(absListView.getChildCount() - 1).getBottom() <= absListView.getHeight()) {
+                        if (absListView.getLastVisiblePosition() == absListView.getAdapter().getCount() - 1 && absListView.getChildAt(absListView.getChildCount() - 1).getBottom() <= absListView.getHeight()) {
                             //It is scrolled all the way down here
 
                             // 滑不动了
