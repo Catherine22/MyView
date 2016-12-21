@@ -88,6 +88,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
     }
 
+    public void removeHeader(int position) {
+        headers.remove(position);
+    }
+
+    public int getHeaderSize() {
+        return headers.size();
+    }
+
     /**
      * 添加footer
      *
@@ -97,7 +105,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         if (view != null) {
             footers.add(view);
         }
+    }
 
+    public void removeFooter(int position) {
+        footers.remove(position);
+    }
+
+    public int getFooterSize() {
+        return footers.size();
     }
 
     /**
@@ -119,6 +134,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public int getItemCount() {
         return myDataList.size() + headers.size() + footers.size();
+    }
+
+    /**
+     * 取得数组总数
+     *
+     * @return items
+     */
+    public int getRealItemCount() {
+        return myDataList.size();
     }
 
     /**

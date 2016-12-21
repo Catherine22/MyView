@@ -27,7 +27,6 @@ import catherine.com.myview.common.Resources;
 import catherine.com.myview.entities.MyData;
 import catherine.com.myview.view.recycler_view.DividerGridItemDecoration;
 import catherine.com.myview.view.ViewUtils;
-import catherine.com.myview.view.recycler_view.ItemMoveCallback;
 import catherine.com.myview.view.recycler_view.OnFooterClickListener;
 import catherine.com.myview.view.recycler_view.OnHeaderClickListener;
 import catherine.com.myview.view.recycler_view.OnItemClickListener;
@@ -47,6 +46,13 @@ public class RefreshableGridFragment extends Fragment {
     private Handler timerHandler;
     private ProgressBar progressBar;
 
+    private int firstVisiableItem = 0;
+    private int lastVisiableItem = 0;
+
+    //Request your server for items from 'fromItem' to 'toItem'
+    private int fromItem;
+    private int toItem;
+
     /**
      * Load how many items at a time
      */
@@ -59,7 +65,7 @@ public class RefreshableGridFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment1, container, false);
         myDataList = new ArrayList<>();
         timerHandler = new Handler();
-        fillInData(50);
+        fillInData(LOADING_ITEMS);
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl);
         swipeRefreshLayout.setColorSchemeResources(R.color.red, R.color.yellow, R.color.green, R.color.blue);
@@ -95,7 +101,8 @@ public class RefreshableGridFragment extends Fragment {
         //类似GridView的效果
         //加入分割线
         rv.addItemDecoration(new DividerGridItemDecoration(getActivity()));
-        rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
+        final GridLayoutManager manager = new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false);
+        rv.setLayoutManager(manager);
 
         //添加items的点击回调事件
         adapter = new RecyclerViewAdapter(getActivity(), myDataList, new OnItemClickListener() {
@@ -109,11 +116,13 @@ public class RefreshableGridFragment extends Fragment {
                 CLog.d(CLog.getTag(), "onItemLongClick " + position);
             }
 
+            //须设置ItemTouchHelper才会生效
             @Override
             public void onItemSwap(int fromPosition, int toPosition) {
                 CLog.d(CLog.getTag(), "onItemSwap " + fromPosition + " to " + toPosition);
             }
 
+            //须设置ItemTouchHelper才会生效
             @Override
             public void onItemDismiss(int position, MyData item) {
                 CLog.d(CLog.getTag(), "onItemDismiss " + position);
@@ -155,6 +164,35 @@ public class RefreshableGridFragment extends Fragment {
         adapter.addHeader(title);
         adapter.addFooter(progressBar);
         rv.setAdapter(adapter);
+
+        //Scroll to load more
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                firstVisiableItem = manager.findFirstVisibleItemPosition() - adapter.getHeaderSize();
+                lastVisiableItem = manager.findLastVisibleItemPosition() - adapter.getHeaderSize();
+
+                if (firstVisiableItem > adapter.getRealItemCount() - 1)
+                    firstVisiableItem = adapter.getRealItemCount() - 1;
+
+                if (lastVisiableItem > adapter.getRealItemCount() - 1)
+                    lastVisiableItem = adapter.getRealItemCount() - 1;
+
+                //At the bottom of the recyclerView
+                if (lastVisiableItem == adapter.getRealItemCount() - 1) {
+                    if (adapter.getRealItemCount() < totalDataLength)
+                        loadMore();
+                    else {
+                        if (adapter.getFooterSize() > 0)
+                            progressBar.setVisibility(View.GONE);
+                    }
+                }
+                CLog.d(CLog.getTag(), "scrolling " + firstVisiableItem + "/" + lastVisiableItem);
+            }
+        });
+
+
         return view;
     }
 
