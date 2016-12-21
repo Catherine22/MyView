@@ -27,6 +27,7 @@ import catherine.com.myview.common.Resources;
 import catherine.com.myview.entities.MyData;
 import catherine.com.myview.view.recycler_view.DividerGridItemDecoration;
 import catherine.com.myview.view.ViewUtils;
+import catherine.com.myview.view.recycler_view.DividerItemDecoration;
 import catherine.com.myview.view.recycler_view.OnFooterClickListener;
 import catherine.com.myview.view.recycler_view.OnHeaderClickListener;
 import catherine.com.myview.view.recycler_view.OnItemClickListener;
@@ -45,6 +46,7 @@ public class RefreshableGridFragment extends Fragment {
     private List<MyData> myDataList;
     private Handler timerHandler;
     private ProgressBar progressBar;
+    private DividerGridItemDecoration gridItemDecoration;
 
     /**
      * Load how many items at a time.
@@ -90,16 +92,15 @@ public class RefreshableGridFragment extends Fragment {
 
         //Make RecyclerView seem like a ListView
 //        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         //Add dividers
-//        rv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+        rv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
 
         //Make RecyclerView seem like a GridView
         final GridLayoutManager manager = new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false);
         rv.setLayoutManager(manager);
-
         //Add dividers
-//        rv.addItemDecoration(new DividerGridItemDecoration(getActivity()));
+        gridItemDecoration = new DividerGridItemDecoration(getActivity());
+        rv.addItemDecoration(gridItemDecoration);
 
         //Click items to call back
         adapter = new RecyclerViewAdapter(getActivity(), myDataList, new OnItemClickListener() {
@@ -174,7 +175,8 @@ public class RefreshableGridFragment extends Fragment {
                     adapter.addFooter(progressBar);
                 progressBar.setVisibility(View.VISIBLE);
 
-                if (recyclerView.getHeight() == recyclerView.getChildAt(recyclerView.getChildCount() - 1).getBottom()) {
+                //There is always a divider in the bottom so that the height of RecyclerView is the position of the last item and the height of a divider.
+                if (recyclerView.getHeight() == recyclerView.getChildAt(recyclerView.getChildCount() - 1).getBottom() + gridItemDecoration.getDividerHeight()) {
                     //It is scrolled all the way down here
 
                     // 滑不动了
