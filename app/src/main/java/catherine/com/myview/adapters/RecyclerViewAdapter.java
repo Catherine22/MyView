@@ -56,7 +56,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         this.myDataList = myDataList;
         headers = new ArrayList<>();
         footers = new ArrayList<>();
-        ;
     }
 
     /**
