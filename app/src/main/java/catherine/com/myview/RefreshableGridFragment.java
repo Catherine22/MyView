@@ -45,10 +45,12 @@ public class RefreshableGridFragment extends Fragment {
     private RecyclerView rv;
     private RecyclerViewAdapter adapter;
     private ItemTouchHelper itemTouchHelper;
+    private MyScrollListener scrollListener;
     private int dividerHeight;
     private List<MyData> myDataList;
     private Handler timerHandler;
     private ProgressBar progressBar;
+    private boolean finishedLoadingAll;
 
     /**
      * Load how many items at a time.
@@ -63,6 +65,7 @@ public class RefreshableGridFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment1, container, false);
         myDataList = new ArrayList<>();
         timerHandler = new Handler();
+        scrollListener = new MyScrollListener();
         fillInData(LOADING_ITEMS);
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl);
@@ -71,6 +74,7 @@ public class RefreshableGridFragment extends Fragment {
             @Override
             public void onRefresh() {
                 CLog.d(CLog.getTag(), "onRefresh()");
+                finishedLoadingAll = false;
                 //Call APIs and stop refreshing while getting response from server
                 //In this case, stopping refreshing in 3 seconds.
                 timerHandler.postDelayed(runnable, 3000);
@@ -175,36 +179,46 @@ public class RefreshableGridFragment extends Fragment {
         notifyDataSetChangedHandler.post(r);
         rv.setAdapter(adapter);
 
-        //Scroll to load more
-        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        //Add layoutChangeListener to get the event of finished notifyDataSetChanged() so that RecyclerView won't catch scrolling event during redrawing view.
+        rv.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (adapter.getFooterSize() == 0) {
-                    adapter.addFooter(progressBar);
-                    notifyDataSetChangedHandler.post(r);
-                }
-                progressBar.setVisibility(View.VISIBLE);
-
-                //There is always a divider in the bottom.
-                if (recyclerView.getHeight() + dividerHeight >= recyclerView.getChildAt(recyclerView.getChildCount() - 1).getBottom()) {
-                    //It is scrolled all the way down here
-
-                    // 滑不动了
-                    // You scrolled to the end of the RecyclerView included the header
-                    // Reach to the end of RecyclerView
-                    // Each downloaded data which is supposed to be filled in the RecyclerView has been loaded.
-                    if (adapter.getRealItemCount() == MAX_DATA_LENGTH) {
-                        adapter.removeFooter(0);
-                        notifyDataSetChangedHandler.post(r);
-                    } else
-                        loadMore();
+            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                if (!finishedLoadingAll) {
+                    rv.clearOnScrollListeners();
+                    //Scroll to load more
+                    rv.addOnScrollListener(scrollListener);
                 }
             }
         });
-
-
         return view;
+    }
+
+    private class MyScrollListener extends RecyclerView.OnScrollListener {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            if (adapter.getFooterSize() == 0) {
+                adapter.addFooter(progressBar);
+                notifyDataSetChangedHandler.post(r);
+            }
+            progressBar.setVisibility(View.VISIBLE);
+
+            //There is always a divider in the bottom.
+            if (recyclerView.getHeight() + dividerHeight >= recyclerView.getChildAt(recyclerView.getChildCount() - 1).getBottom()) {
+                //It is scrolled all the way down here
+
+                // 滑不动了
+                // You scrolled to the end of the RecyclerView included the header
+                // Reach to the end of RecyclerView
+                // Each downloaded data which is supposed to be filled in the RecyclerView has been loaded.
+                if (adapter.getRealItemCount() == MAX_DATA_LENGTH) {
+                    adapter.removeFooter(0);
+                    notifyDataSetChangedHandler.post(r);
+                    finishedLoadingAll = true;
+                } else
+                    loadMore();
+            }
+        }
     }
 
 
@@ -278,7 +292,7 @@ public class RefreshableGridFragment extends Fragment {
     Handler notifyDataSetChangedHandler = new Handler();
     final Runnable r = new Runnable() {
         public void run() {
-            rv.stopScroll();
+            rv.clearOnScrollListeners();
             adapter.notifyDataSetChanged();
         }
     };

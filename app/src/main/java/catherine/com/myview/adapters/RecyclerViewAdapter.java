@@ -56,6 +56,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         this.myDataList = myDataList;
         headers = new ArrayList<>();
         footers = new ArrayList<>();
+        ;
     }
 
     /**
@@ -211,7 +212,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
 
-
     /**
      * 重写这个方法，很重要，是加入Header和Footer的关键，我们通过判断item的类型，从而绑定不同的view
      */
@@ -346,6 +346,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             }
         }
     }
+
 
     private ControllerListener listener = new BaseControllerListener<ImageInfo>() {
         @Override
