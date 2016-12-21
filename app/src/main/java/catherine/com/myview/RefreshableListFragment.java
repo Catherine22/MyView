@@ -1,6 +1,7 @@
 package catherine.com.myview;
 
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,12 +41,20 @@ public class RefreshableListFragment extends Fragment {
     private Handler timerHandler;
 
     /**
+     * The last item you could see in ListView at previous scrolling.
+     */
+    private int preVisiableItemPos = 0;
+    /**
+     * The first item you could see in ListView at previous scrolling.
+     */
+    private int preFirstItemTopPos = -1;
+    /**
      * Load how many items at a time
      */
     private final int LOADING_ITEMS = 10;
 
-    //Calculate totalDataLength referring to APIs response.
-    private int totalDataLength = Resources.IMAGES.length;
+    //Get MAX_DATA_LENGTH from your server
+    private int MAX_DATA_LENGTH = Resources.IMAGES.length;
 
 
     @Override
@@ -61,7 +70,7 @@ public class RefreshableListFragment extends Fragment {
             @Override
             public void onRefresh() {
                 CLog.d(CLog.getTag(), "onRefresh()");
-                //Call APIs and stop refreshing while getting response from server
+                //Call APIs and stop refreshing while getting response from the server
                 //In this case, stopping refreshing in 3 seconds.
                 timerHandler.postDelayed(runnable, 3000);
             }
@@ -79,7 +88,7 @@ public class RefreshableListFragment extends Fragment {
             title.setBackgroundColor(getResources().getColor(R.color.action_bar_background));
         title.setGravity(Gravity.CENTER);
         title.setTextColor(Color.WHITE);
-        title.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ViewUtils.convertDpToPixel(getActivity(),25)));
+        title.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) ViewUtils.convertDpToPixel(getActivity(), 25)));
         title.setText("Refreshable ListView");
         listView.addHeaderView(title);
 
@@ -87,39 +96,46 @@ public class RefreshableListFragment extends Fragment {
         progressBar = new ProgressBar(getActivity());
         progressBar.setVisibility(View.VISIBLE);
         listView.addFooterView(progressBar);
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView absListView, int i) {
+        listView.setOnScrollListener(
+                new AbsListView.OnScrollListener() {
 
-            }
+                    @Override
+                    public void onScrollStateChanged(AbsListView absListView, int i) {
+                        CLog.d(CLog.getTag(), "onScrollStateChanged:" + i);
+                    }
 
-            @Override
-            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-//                CLog.d(CLog.getTag(), "firstVisibleItem:" + firstVisibleItem + "/visibleItemCount:" + visibleItemCount + "/totalItemCount:" + totalItemCount);
-                final int lastItem = firstVisibleItem + visibleItemCount;
+                    @Override
+                    public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                        if (absListView == null || absListView.getChildCount() <= 0) return;
+                        CLog.d(CLog.getTag(), "firstVisibleItem:" + firstVisibleItem + "/visibleItemCount:" + visibleItemCount + "/totalItemCount:" + totalItemCount);
 
-                if (listView.getFooterViewsCount() == 0)
-                    listView.addFooterView(progressBar);
+                        progressBar.setVisibility(View.VISIBLE);
+                        if (absListView.getLastVisiblePosition() == absListView.getAdapter().getCount() - 1 &&
+                                absListView.getChildAt(absListView.getChildCount() - 1).getBottom() <= absListView.getHeight()) {
+                            //It is scrolled all the way down here
 
-                //Reach to end of ListView
-                if ((lastItem == totalItemCount) && myDataList != null && myDataList.size() != 0) {
-                    //Every downloaded data which is supposed to be filled in the ListView has been loaded.
-                    if (totalDataLength == myDataList.size())
-                        //Hide the footer
-                        listView.removeFooterView(progressBar);
-                    else {
-                        loadMore();
+                            // 滑不动了
+                            // You scrolled to the end of the ListView included the header
+                            // Reach to the end of ListView
+                            // Each downloaded data which is supposed to be filled in the ListView has been loaded.
+                            if (MAX_DATA_LENGTH == adapter.getCount())
+                                //Hide the footer
+                                listView.removeFooterView(progressBar);
+                            else
+                                loadMore();
+                        }
+
                     }
                 }
 
-            }
-        });
+        );
         return view;
     }
 
     private void loadMore() {
         CLog.i(CLog.getTag(), "loadMore()");
-        int rest = totalDataLength - myDataList.size();
+        progressBar.setVisibility(View.INVISIBLE);
+        int rest = MAX_DATA_LENGTH - myDataList.size();
         //If the rest of items < LOADING_ITEMS, just load the rest.
         int loadingSize = rest > LOADING_ITEMS ? LOADING_ITEMS : rest;
         if (loadingSize > 0) {
@@ -134,11 +150,17 @@ public class RefreshableListFragment extends Fragment {
     private int lpPointer = 0;
 
     /**
-     * Loading loadingProgress items at a time
+     * Loading a part of items at a time.<br>
      *
      * @param loadingProgress how many items are supposed to be load at a time
      */
     private void fillInData(int loadingProgress) {
+        try {
+            //It seems like download data
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         loadingProgress += lpPointer;
         for (int i = lpPointer; i < loadingProgress; i++) {
             lpPointer++;

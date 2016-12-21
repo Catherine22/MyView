@@ -102,7 +102,7 @@ public class ListViewAdapter extends BaseAdapter {
     private ControllerListener listener = new BaseControllerListener<ImageInfo>() {
         @Override
         public void onFailure(String id, Throwable throwable) {
-            String content = String.format("Error loading %s", id);
+            String content = String.format("Loading %s failed", id);
             CLog.d(CLog.getTag(), content);
         }
 
@@ -112,13 +112,13 @@ public class ListViewAdapter extends BaseAdapter {
             if (imageInfo == null) {
                 return;
             }
-            QualityInfo qualityInfo = imageInfo.getQualityInfo();
-            String content = String.format("Final image received! \nSize %d x %d \nQuality level %d, good enough: %s, full quality: %s",
-                    imageInfo.getWidth(),
-                    imageInfo.getHeight(),
-                    qualityInfo.getQuality(),
-                    qualityInfo.isOfGoodEnoughQuality(),
-                    qualityInfo.isOfFullQuality());
+//            QualityInfo qualityInfo = imageInfo.getQualityInfo();
+//            String content = String.format("Final image received! \nSize %d x %d \nQuality level %d, good enough: %s, full quality: %s",
+//                    imageInfo.getWidth(),
+//                    imageInfo.getHeight(),
+//                    qualityInfo.getQuality(),
+//                    qualityInfo.isOfGoodEnoughQuality(),
+//                    qualityInfo.isOfFullQuality());
 //            CLog.d(CLog.getTag(), content);
         }
 

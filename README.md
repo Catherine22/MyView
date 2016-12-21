@@ -12,10 +12,12 @@ Written by Catherine
   - [x] Add headers
   - [x] Add footers (in this case, showing a ProgressBar) to load more items when it reaches the end.     
 
+
   > **Note:**
-  > 1. Requesting split data from your server many times, and scroll to download next group of data to fill in ListView.
-  > 2. Request fewer items at a time so that users don't download the whole data, they just download what the see.And your server queries database more efficient.
-  > 3. Using Universal-Image-Loader, Volley and others libraries to load images.
+  > Requesting split data from your server many times, and scroll to download next group of data to fill in ListView.    
+  > Request fewer items at a time so that users don't download the whole data, they just download what the see.    
+  And it's friendly if you need to show data with different pages.    
+  > Using Universal-Image-Loader, Fresco, and others libraries to load images.
   - [x] Pull to refresh with SwipeRefreshLayout
   - [RefreshableListFragment]
 
@@ -40,7 +42,7 @@ Written by Catherine
   - Using focusCrop scales images to focus point instead of the center so that you won't crop someone's face. Click to see more about [FocusCrop].
 
 
-  [FocusCrop]:<http://frescolib.org/docs/scaling.html#FocusCrop>
+   [FocusCrop]:<http://frescolib.org/docs/scaling.html#FocusCrop>
    [MainActivity]:<https://github.com/Catherine22/MyView/blob/master/app/src/main/java/catherine/com/myview/MainActivity.java>  
    [RefreshableListFragment]:<https://github.com/Catherine22/MyView/blob/master/app/src/main/java/catherine/com/myview/RefreshableListFragment.java>  
    [RefreshableGridFragment]:<https://github.com/Catherine22/MyView/blob/master/app/src/main/java/catherine/com/myview/RefreshableGridFragment.java>  
