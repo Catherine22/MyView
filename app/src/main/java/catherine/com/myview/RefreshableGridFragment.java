@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -92,20 +93,20 @@ public class RefreshableGridFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
 
 //-------------------------Make RecyclerView seem like a ListView-------------------------
-        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //Add dividers
-        DividerItemDecoration listItemDecoration = new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST);
-        rv.addItemDecoration(listItemDecoration);
-        dividerHeight = listItemDecoration.getDividerHeight();
+//        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+//        //Add dividers
+//        DividerItemDecoration listItemDecoration = new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST);
+//        rv.addItemDecoration(listItemDecoration);
+//        dividerHeight = listItemDecoration.getDividerHeight();
 //-------------------------Make RecyclerView seem like a ListView-------------------------
 
 
 //-------------------------Make RecyclerView seem like a GridView-------------------------
-//        rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
-//        //Add dividers
-//        DividerGridItemDecoration gridItemDecoration = new DividerGridItemDecoration(getActivity());
-//        rv.addItemDecoration(gridItemDecoration);
-//        dividerHeight = gridItemDecoration.getDividerHeight();
+        rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
+        //Add dividers
+        DividerGridItemDecoration gridItemDecoration = new DividerGridItemDecoration(getActivity());
+        rv.addItemDecoration(gridItemDecoration);
+        dividerHeight = gridItemDecoration.getDividerHeight();
 //-------------------------Make RecyclerView seem like a GridView-------------------------
 
 
@@ -171,6 +172,7 @@ public class RefreshableGridFragment extends Fragment {
 
         adapter.addHeader(title);
         adapter.addFooter(progressBar);
+        notifyDataSetChangedHandler.post(r);
         rv.setAdapter(adapter);
 
         //Scroll to load more
@@ -178,8 +180,10 @@ public class RefreshableGridFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (adapter.getFooterSize() == 0)
+                if (adapter.getFooterSize() == 0) {
                     adapter.addFooter(progressBar);
+                    notifyDataSetChangedHandler.post(r);
+                }
                 progressBar.setVisibility(View.VISIBLE);
 
                 //There is always a divider in the bottom.
@@ -192,6 +196,7 @@ public class RefreshableGridFragment extends Fragment {
                     // Each downloaded data which is supposed to be filled in the RecyclerView has been loaded.
                     if (adapter.getRealItemCount() == MAX_DATA_LENGTH) {
                         adapter.removeFooter(0);
+                        notifyDataSetChangedHandler.post(r);
                     } else
                         loadMore();
                 }
@@ -246,6 +251,7 @@ public class RefreshableGridFragment extends Fragment {
             fillInData(LOADING_ITEMS);
             //update and redraw recyclerView
             adapter.updateDataSet(myDataList);
+            notifyDataSetChangedHandler.post(r);
             //stop refreshing
             swipeRefreshLayout.setRefreshing(false);
         }
@@ -259,13 +265,21 @@ public class RefreshableGridFragment extends Fragment {
         int loadingSize = rest > LOADING_ITEMS ? LOADING_ITEMS : rest;
         if (loadingSize > 0) {
             fillInData(loadingSize);
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //update and redraw recyclerView
-                    adapter.updateDataSet(myDataList);
-                }
-            });
+
+            //update and redraw recyclerView
+            adapter.updateDataSet(myDataList);
+            notifyDataSetChangedHandler.post(r);
         }
     }
+
+    /**
+     * Use handler to do notifyDataSetChanged() or you'll get IllegalStateException
+     */
+    Handler notifyDataSetChangedHandler = new Handler();
+    final Runnable r = new Runnable() {
+        public void run() {
+            rv.stopScroll();
+            adapter.notifyDataSetChanged();
+        }
+    };
 }

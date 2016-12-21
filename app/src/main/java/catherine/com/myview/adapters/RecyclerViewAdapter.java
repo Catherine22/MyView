@@ -74,7 +74,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
      */
     public void addItem(MyData item) {
         myDataList.add(item);
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
     }
 
     /**
@@ -85,13 +85,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void addHeader(View view) {
         if (view != null) {
             headers.add(view);
-            notifyDataSetChanged();
+//        notifyDataSetChanged();
         }
     }
 
     public void removeHeader(int position) {
         headers.remove(position);
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
     }
 
     public int getHeaderSize() {
@@ -106,13 +106,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void addFooter(View view) {
         if (view != null) {
             footers.add(view);
-            notifyDataSetChanged();
+//        notifyDataSetChanged();
         }
     }
 
     public void removeFooter(int position) {
         footers.remove(position);
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
     }
 
     public int getFooterSize() {
@@ -126,7 +126,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
      */
     public void updateDataSet(List<MyData> newList) {
         myDataList = newList;
-        notifyDataSetChanged();
     }
 
 
@@ -210,6 +209,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void setOnFooterClickListener(OnFooterClickListener mOnFooterClickListener) {
         this.mOnFooterClickListener = mOnFooterClickListener;
     }
+
+
 
     /**
      * 重写这个方法，很重要，是加入Header和Footer的关键，我们通过判断item的类型，从而绑定不同的view
