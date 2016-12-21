@@ -4,9 +4,11 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -27,7 +29,7 @@ import catherine.com.myview.common.Resources;
 import catherine.com.myview.entities.MyData;
 import catherine.com.myview.view.recycler_view.DividerGridItemDecoration;
 import catherine.com.myview.view.ViewUtils;
-import catherine.com.myview.view.recycler_view.ItemMoveCallback;
+import catherine.com.myview.view.recycler_view.DividerItemDecoration;
 import catherine.com.myview.view.recycler_view.OnFooterClickListener;
 import catherine.com.myview.view.recycler_view.OnHeaderClickListener;
 import catherine.com.myview.view.recycler_view.OnItemClickListener;
@@ -43,23 +45,28 @@ public class RefreshableGridFragment extends Fragment {
     private RecyclerView rv;
     private RecyclerViewAdapter adapter;
     private ItemTouchHelper itemTouchHelper;
+    private MyScrollListener scrollListener;
+    private int dividerHeight;
     private List<MyData> myDataList;
     private Handler timerHandler;
     private ProgressBar progressBar;
+    private boolean finishedLoadingAll;
 
     /**
-     * Load how many items at a time
+     * Load how many items at a time.
+     * Set this number several times the size of columns
      */
-    private final int LOADING_ITEMS = 10;
-    //Calculate totalDataLength referring to APIs response.
-    private int totalDataLength = Resources.IMAGES.length;
+    private final int LOADING_ITEMS = 12;
+    //Calculate MAX_DATA_LENGTH referring to APIs response.
+    private final int MAX_DATA_LENGTH = Resources.IMAGES.length;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment1, container, false);
         myDataList = new ArrayList<>();
         timerHandler = new Handler();
-        fillInData(50);
+        scrollListener = new MyScrollListener();
+        fillInData(LOADING_ITEMS);
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl);
         swipeRefreshLayout.setColorSchemeResources(R.color.red, R.color.yellow, R.color.green, R.color.blue);
@@ -67,6 +74,7 @@ public class RefreshableGridFragment extends Fragment {
             @Override
             public void onRefresh() {
                 CLog.d(CLog.getTag(), "onRefresh()");
+                finishedLoadingAll = false;
                 //Call APIs and stop refreshing while getting response from server
                 //In this case, stopping refreshing in 3 seconds.
                 timerHandler.postDelayed(runnable, 3000);
@@ -86,18 +94,27 @@ public class RefreshableGridFragment extends Fragment {
         title.setText("Refreshable RecyclerView");
 
         progressBar = new ProgressBar(getActivity());
+        progressBar.setVisibility(View.VISIBLE);
 
-        //类似ListView的效果
-        //加入分割线
-//        rv.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+//-------------------------Make RecyclerView seem like a ListView-------------------------
 //        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+//        //Add dividers
+//        DividerItemDecoration listItemDecoration = new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST);
+//        rv.addItemDecoration(listItemDecoration);
+//        dividerHeight = listItemDecoration.getDividerHeight();
+//-------------------------Make RecyclerView seem like a ListView-------------------------
 
-        //类似GridView的效果
-        //加入分割线
-        rv.addItemDecoration(new DividerGridItemDecoration(getActivity()));
+
+//-------------------------Make RecyclerView seem like a GridView-------------------------
         rv.setLayoutManager(new GridLayoutManager(getActivity(), 3, StaggeredGridLayoutManager.VERTICAL, false));
+        //Add dividers
+        DividerGridItemDecoration gridItemDecoration = new DividerGridItemDecoration(getActivity());
+        rv.addItemDecoration(gridItemDecoration);
+        dividerHeight = gridItemDecoration.getDividerHeight();
+//-------------------------Make RecyclerView seem like a GridView-------------------------
 
-        //添加items的点击回调事件
+
+        //Click items to call back
         adapter = new RecyclerViewAdapter(getActivity(), myDataList, new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -109,17 +126,20 @@ public class RefreshableGridFragment extends Fragment {
                 CLog.d(CLog.getTag(), "onItemLongClick " + position);
             }
 
+            //It works after you set up ItemTouchHelper
             @Override
             public void onItemSwap(int fromPosition, int toPosition) {
                 CLog.d(CLog.getTag(), "onItemSwap " + fromPosition + " to " + toPosition);
             }
 
+            //It works after you set up ItemTouchHelper
             @Override
             public void onItemDismiss(int position, MyData item) {
                 CLog.d(CLog.getTag(), "onItemDismiss " + position);
             }
         });
-        //添加headers的点击回调事件
+
+        //Click headers to call back
         adapter.setOnHeaderClickListener(new OnHeaderClickListener() {
             @Override
             public void onHeaderClick(View view, int position) {
@@ -133,7 +153,8 @@ public class RefreshableGridFragment extends Fragment {
 
             }
         });
-        //添加footers的点击回调事件
+
+        //Click footers to call back
         adapter.setOnFooterClickListener(new OnFooterClickListener() {
             @Override
             public void onFooterClick(View view, int position) {
@@ -148,14 +169,56 @@ public class RefreshableGridFragment extends Fragment {
             }
         });
 
-        //添加拖移（交换位置）、左右滑动（删除）事件（在grids中不适用拖移）
+        //Drag n drop(switch 2 items), swipe to remove an item
+        //Dragging n dropping doesn't work in grids.
 //        itemTouchHelper = new ItemTouchHelper(new ItemMoveCallback(adapter));
 //        itemTouchHelper.attachToRecyclerView(rv);
 
         adapter.addHeader(title);
         adapter.addFooter(progressBar);
+        notifyDataSetChangedHandler.post(r);
         rv.setAdapter(adapter);
+
+        //Add layoutChangeListener to get the event of finished notifyDataSetChanged() so that RecyclerView won't catch scrolling event during redrawing view.
+        rv.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+                if (!finishedLoadingAll) {
+                    rv.clearOnScrollListeners();
+                    //Scroll to load more
+                    rv.addOnScrollListener(scrollListener);
+                }
+            }
+        });
         return view;
+    }
+
+    private class MyScrollListener extends RecyclerView.OnScrollListener {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            if (adapter.getFooterSize() == 0) {
+                adapter.addFooter(progressBar);
+                notifyDataSetChangedHandler.post(r);
+            }
+            progressBar.setVisibility(View.VISIBLE);
+
+            //There is always a divider in the bottom.
+            if (recyclerView.getHeight() + dividerHeight >= recyclerView.getChildAt(recyclerView.getChildCount() - 1).getBottom()) {
+                //It is scrolled all the way down here
+
+                // 滑不动了
+                // You scrolled to the end of the RecyclerView included the header
+                // Reach to the end of RecyclerView
+                // Each downloaded data which is supposed to be filled in the RecyclerView has been loaded.
+                if (adapter.getRealItemCount() == MAX_DATA_LENGTH) {
+                    adapter.removeFooter(0);
+                    notifyDataSetChangedHandler.post(r);
+                    finishedLoadingAll = true;
+                } else
+                    loadMore();
+            }
+        }
     }
 
 
@@ -167,39 +230,42 @@ public class RefreshableGridFragment extends Fragment {
      * @param loadingProgress how many items are supposed to be load at a time
      */
     private void fillInData(int loadingProgress) {
+        try {
+            //It seems like download data
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         loadingProgress += lpPointer;
+        String title = "TITLE ";
+        String desc = "DESC. ";
+        if (newData) {
+            title = "new TITLE ";
+            desc = "new DESC. ";
+        }
         for (int i = lpPointer; i < loadingProgress; i++) {
             lpPointer++;
             MyData mData = new MyData();
-            mData.setTitle("TITLE " + i);
-            mData.setDescription("DESC. " + i);
-            mData.setPicUrl(Resources.IMAGES[i]);
-            myDataList.add(mData);
-        }
-    }
-
-    private void fillInNewData(int loadingProgress) {
-        loadingProgress += lpPointer;
-        for (int i = lpPointer; i < loadingProgress; i++) {
-            MyData mData = new MyData();
-            mData.setTitle("new TITLE " + i);
-            mData.setDescription("new DESC. " + i);
+            mData.setTitle(title + i);
+            mData.setDescription(desc + i);
             mData.setPicUrl(Resources.IMAGES[i]);
             myDataList.add(mData);
         }
     }
 
 
+    //This is just for testing.
+    private boolean newData;
     private Runnable runnable = new Runnable() {
         public void run() {
             //refill data
             myDataList.clear();
             lpPointer = 0;
-            fillInNewData(LOADING_ITEMS);
-            //update data in adapter
+            newData = true;
+            fillInData(LOADING_ITEMS);
+            //update and redraw recyclerView
             adapter.updateDataSet(myDataList);
-            //redraw ListView
-            adapter.notifyDataSetChanged();
+            notifyDataSetChangedHandler.post(r);
             //stop refreshing
             swipeRefreshLayout.setRefreshing(false);
         }
@@ -208,15 +274,26 @@ public class RefreshableGridFragment extends Fragment {
 
     private void loadMore() {
         CLog.i(CLog.getTag(), "loadMore()");
-        int rest = totalDataLength - myDataList.size();
+        int rest = MAX_DATA_LENGTH - myDataList.size();
         //If the rest of items < LOADING_ITEMS, just load the rest.
         int loadingSize = rest > LOADING_ITEMS ? LOADING_ITEMS : rest;
         if (loadingSize > 0) {
             fillInData(loadingSize);
-            //update data in adapter
+
+            //update and redraw recyclerView
             adapter.updateDataSet(myDataList);
-            //redraw ListView
-            adapter.notifyDataSetChanged();
+            notifyDataSetChangedHandler.post(r);
         }
     }
+
+    /**
+     * Use handler to do notifyDataSetChanged() or you'll get IllegalStateException
+     */
+    Handler notifyDataSetChangedHandler = new Handler();
+    final Runnable r = new Runnable() {
+        public void run() {
+            rv.clearOnScrollListeners();
+            adapter.notifyDataSetChanged();
+        }
+    };
 }

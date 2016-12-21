@@ -74,7 +74,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
      */
     public void addItem(MyData item) {
         myDataList.add(item);
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
     }
 
     /**
@@ -85,7 +85,17 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void addHeader(View view) {
         if (view != null) {
             headers.add(view);
+//        notifyDataSetChanged();
         }
+    }
+
+    public void removeHeader(int position) {
+        headers.remove(position);
+//        notifyDataSetChanged();
+    }
+
+    public int getHeaderSize() {
+        return headers.size();
     }
 
     /**
@@ -96,8 +106,17 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void addFooter(View view) {
         if (view != null) {
             footers.add(view);
+//        notifyDataSetChanged();
         }
+    }
 
+    public void removeFooter(int position) {
+        footers.remove(position);
+//        notifyDataSetChanged();
+    }
+
+    public int getFooterSize() {
+        return footers.size();
     }
 
     /**
@@ -107,7 +126,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
      */
     public void updateDataSet(List<MyData> newList) {
         myDataList = newList;
-        notifyDataSetChanged();
     }
 
 
@@ -119,6 +137,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public int getItemCount() {
         return myDataList.size() + headers.size() + footers.size();
+    }
+
+    /**
+     * 取得数组总数
+     *
+     * @return items
+     */
+    public int getRealItemCount() {
+        return myDataList.size();
     }
 
     /**
@@ -182,6 +209,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void setOnFooterClickListener(OnFooterClickListener mOnFooterClickListener) {
         this.mOnFooterClickListener = mOnFooterClickListener;
     }
+
 
     /**
      * 重写这个方法，很重要，是加入Header和Footer的关键，我们通过判断item的类型，从而绑定不同的view
@@ -317,6 +345,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             }
         }
     }
+
 
     private ControllerListener listener = new BaseControllerListener<ImageInfo>() {
         @Override

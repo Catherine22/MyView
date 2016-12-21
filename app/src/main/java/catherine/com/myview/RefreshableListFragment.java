@@ -1,7 +1,6 @@
 package catherine.com.myview;
 
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,14 +40,6 @@ public class RefreshableListFragment extends Fragment {
     private Handler timerHandler;
 
     /**
-     * The last item you could see in ListView at previous scrolling.
-     */
-    private int preVisiableItemPos = 0;
-    /**
-     * The first item you could see in ListView at previous scrolling.
-     */
-    private int preFirstItemTopPos = -1;
-    /**
      * Load how many items at a time
      */
     private final int LOADING_ITEMS = 10;
@@ -62,7 +53,7 @@ public class RefreshableListFragment extends Fragment {
         View view = inflater.inflate(R.layout.frag_refreshable_list, container, false);
         timerHandler = new Handler();
         myDataList = new ArrayList<>();
-        fillInData(LOADING_ITEMS);
+        fillInList(LOADING_ITEMS);
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.srl);
         swipeRefreshLayout.setColorSchemeResources(R.color.red, R.color.yellow, R.color.green, R.color.blue);
@@ -79,7 +70,7 @@ public class RefreshableListFragment extends Fragment {
         adapter = new ListViewAdapter(getActivity(), myDataList);
         listView.setAdapter(adapter);
 
-//Set the header on ListView
+        //Set the header on ListView
         TextView title = new TextView(getActivity());
         title.setTextSize(18);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -109,9 +100,10 @@ public class RefreshableListFragment extends Fragment {
                         if (absListView == null || absListView.getChildCount() <= 0) return;
                         CLog.d(CLog.getTag(), "firstVisibleItem:" + firstVisibleItem + "/visibleItemCount:" + visibleItemCount + "/totalItemCount:" + totalItemCount);
 
+                        if (listView.getFooterViewsCount() == 0)
+                            listView.addFooterView(progressBar);
                         progressBar.setVisibility(View.VISIBLE);
-                        if (absListView.getLastVisiblePosition() == absListView.getAdapter().getCount() - 1 &&
-                                absListView.getChildAt(absListView.getChildCount() - 1).getBottom() <= absListView.getHeight()) {
+                        if (absListView.getLastVisiblePosition() == absListView.getAdapter().getCount() - 1 && absListView.getChildAt(absListView.getChildCount() - 1).getBottom() <= absListView.getHeight()) {
                             //It is scrolled all the way down here
 
                             // 滑不动了
@@ -139,7 +131,7 @@ public class RefreshableListFragment extends Fragment {
         //If the rest of items < LOADING_ITEMS, just load the rest.
         int loadingSize = rest > LOADING_ITEMS ? LOADING_ITEMS : rest;
         if (loadingSize > 0) {
-            fillInData(loadingSize);
+            fillInList(loadingSize);
             //update data in adapter
             adapter.setMyDataList(myDataList);
             //redraw ListView
@@ -147,6 +139,10 @@ public class RefreshableListFragment extends Fragment {
         }
     }
 
+    /**
+     * It depends on APIs, <br>
+     * you might need to post both fromPos and toPos or both fromPos and limit to server. <br>
+     */
     private int lpPointer = 0;
 
     /**
@@ -154,7 +150,7 @@ public class RefreshableListFragment extends Fragment {
      *
      * @param loadingProgress how many items are supposed to be load at a time
      */
-    private void fillInData(int loadingProgress) {
+    private void fillInList(int loadingProgress) {
         try {
             //It seems like download data
             Thread.sleep(1000);
@@ -162,33 +158,32 @@ public class RefreshableListFragment extends Fragment {
             e.printStackTrace();
         }
         loadingProgress += lpPointer;
+
+        String title = "TITLE ";
+        String desc = "DESC. ";
+        if (newData) {
+            title = "new TITLE ";
+            desc = "new DESC. ";
+        }
         for (int i = lpPointer; i < loadingProgress; i++) {
             lpPointer++;
             MyData mData = new MyData();
-            mData.setTitle("TITLE " + i);
-            mData.setDescription("DESC. " + i);
+            mData.setTitle(title + i);
+            mData.setDescription(desc + i);
             mData.setPicUrl(Resources.IMAGES[i]);
             myDataList.add(mData);
         }
     }
 
-    private void fillInNewData(int loadingProgress) {
-        loadingProgress += lpPointer;
-        for (int i = lpPointer; i < loadingProgress; i++) {
-            MyData mData = new MyData();
-            mData.setTitle("new TITLE " + i);
-            mData.setDescription("new DESC. " + i);
-            mData.setPicUrl(Resources.IMAGES[i]);
-            myDataList.add(mData);
-        }
-    }
-
+    //This is just for testing.
+    private boolean newData;
     private Runnable runnable = new Runnable() {
         public void run() {
             //refill data
             myDataList.clear();
             lpPointer = 0;
-            fillInNewData(LOADING_ITEMS);
+            newData = true;
+            fillInList(LOADING_ITEMS);
             //update data in adapter
             adapter.setMyDataList(myDataList);
             //redraw ListView
