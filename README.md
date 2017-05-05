@@ -34,6 +34,7 @@ Written by Catherine
   - [x] Make headers and footers span all the columns in grids.
   - [x] Drag & drop
   - [x] Swipe to remove items
+  - [x] Pull to refresh with SwipeRefreshLayout
   - [x] Here is simple [RefreshableGridFragment] and [RecyclerViewAdapter]
 
 
