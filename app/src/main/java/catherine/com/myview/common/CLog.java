@@ -28,27 +28,59 @@ public class CLog {
         }
     }
 
+    public static void v(String message) {
+        if (Config.showDebugLog) {
+            Log.v(getTag(), message);
+        }
+    }
+
     public static void d(String tab, String message) {
         if (Config.showDebugLog) {
             Log.d(tab, message);
         }
     }
 
+
+    public static void d(String message) {
+        if (Config.showDebugLog) {
+            Log.d(getTag(), message);
+        }
+    }
+    
     public static void w(String tab, String message) {
         if (Config.showDebugLog) {
             Log.w(tab, message);
         }
     }
 
+    public static void w(String message) {
+        if (Config.showDebugLog) {
+            Log.w(getTag(), message);
+        }
+    }
+    
+    
     public static void e(String tab, String message) {
         if (Config.showDebugLog) {
             Log.e(tab, message);
         }
     }
 
+    public static void e(String message) {
+        if (Config.showDebugLog) {
+            Log.e(getTag(), message);
+        }
+    }
+
     public static void i(String tab, String message) {
         if (Config.showDebugLog) {
             Log.i(tab, message);
+        }
+    }
+
+    public static void i(String message) {
+        if (Config.showDebugLog) {
+            Log.i(getTag(), message);
         }
     }
 
